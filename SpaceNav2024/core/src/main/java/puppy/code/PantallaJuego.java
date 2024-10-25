@@ -61,7 +61,7 @@ public class PantallaJuego implements Screen {
 	    nave = new Nave4(Gdx.graphics.getWidth()/2-50,30,new Texture(Gdx.files.internal("MainShip1.png")),
 	    				Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")), 
 	    				new Texture(Gdx.files.internal("Rocket1.png")), 
-	    				Gdx.audio.newSound(Gdx.files.internal("launch_rocket.mp3"))); 
+	    				Gdx.audio.newSound(Gdx.files.internal("launch_rocket.mp3")), this); 
         nave.setVidas(vidas);
         //crear asteroides
         Random r = new Random();

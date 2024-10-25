@@ -23,8 +23,11 @@ public class Nave4 {
     private boolean herido = false;
     private int tiempoHeridoMax=50;
     private int tiempoHerido;
+    //Input de la nave 
+    ShipController inputHandler;
+    private PantallaJuego juego;
     
-    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala) {
+    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, PantallaJuego juego) {
     	sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
     	this.txBala = txBala;
@@ -32,65 +35,44 @@ public class Nave4 {
     	spr.setPosition(x, y);
     	//spr.setOriginCenter();
     	spr.setBounds(x, y, 45, 45);
-    	
+    	//init controller, con referencia de esta nave
+    	inputHandler = new ShipController(this);
+    	Gdx.input.setInputProcessor(inputHandler);
+    	//referencia de pantalla juego
+    	setJuego(juego);
 
     }
     public void draw(SpriteBatch batch, PantallaJuego juego){
         float x =  spr.getX();
         float y =  spr.getY();
+        
         if (!herido) {
-	        // que se mueva con teclado 
-	        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) xVel--;
-	        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) xVel++;
-        	if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) yVel--;     
-	        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) yVel++;
-        	
-	     /*   if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) spr.setRotation(++rotacion);
-	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) spr.setRotation(--rotacion);
-	        
-	        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-	        	xVel -=Math.sin(Math.toRadians(rotacion));
-	        	yVel +=Math.cos(Math.toRadians(rotacion));
-	        	System.out.println(rotacion+" - "+Math.sin(Math.toRadians(rotacion))+" - "+Math.cos(Math.toRadians(rotacion))) ;    
-	        }
-	        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-	        	xVel +=Math.sin(Math.toRadians(rotacion));
-	        	yVel -=Math.cos(Math.toRadians(rotacion));
-	        	     
-	        }*/
 	        
 	        // que se mantenga dentro de los bordes de la ventana
-	        
-	        //	X
-	        if (x+xVel < 0 || x+xVel+ spr.getWidth() >= Gdx.graphics.getWidth())
-	        	xVel*=-1;
-	        
-	        //	Y 
-	        if (y+yVel < 0 || y+yVel+spr.getHeight() > Gdx.graphics.getHeight())
-	        	yVel*=-1;
-	        
-	        spr.setPosition(x+xVel, y+yVel);   
+	        inputHandler.CheckScreenLimits();
+	       //Actualizar posicion de la nave segun input
+	        spr.setPosition(x+inputHandler.getXspeed(), y+inputHandler.getYspeed());   
          
  		    spr.draw(batch);
         } else {
+        	// Shake si esta herido
            spr.setX(spr.getX()+MathUtils.random(-2,2));
  		   spr.draw(batch); 
  		  spr.setX(x);
  		   tiempoHerido--;
  		   if (tiempoHerido<=0) herido = false;
- 		 }
-        
-        // disparo
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {         
-          Bullet  bala = new Bullet(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,(int)xVel,3,txBala);
-	      juego.agregarBala(bala);
-	      
-	      //Reproducir sonido de la bala a un determinado volumen 
-	      soundBala.setVolume(soundBala.play(), 0.45f);
-        }
-       
+ 		 }               
     }
-      
+    
+    //Spawn bala
+    public void spawnBala() {
+    	Bullet  bala = new Bullet(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,(int)inputHandler.getXspeed(),3,txBala);
+    	getJuego().agregarBala(bala);
+    	//Reproducir sonido de la bala a un determinado volumen 
+	      soundBala.setVolume(soundBala.play(), 0.45f);
+    }
+    
+    
     public boolean checkCollision(Ball2 b) {
         if(!herido && b.getArea().overlaps(spr.getBoundingRectangle())){
         	// rebote
@@ -132,4 +114,14 @@ public class Nave4 {
     public int getX() {return (int) spr.getX();}
     public int getY() {return (int) spr.getY();}
 	public void setVidas(int vidas2) {vidas = vidas2;}
+	//obtener sprite
+	public Sprite getSprite() {
+		return this.spr;
+	}
+	public PantallaJuego getJuego() {
+		return juego;
+	}
+	public void setJuego(PantallaJuego juego) {
+		this.juego = juego;
+	}
 }
