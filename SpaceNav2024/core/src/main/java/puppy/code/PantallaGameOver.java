@@ -9,30 +9,23 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
-public class PantallaGameOver implements Screen {
+public class PantallaGameOver extends Pantalla implements Screen {
 
 	private SpaceNavigation game;
 	private OrthographicCamera camera;
-	private SpriteBatch batch;
-    private Texture background;
 	public PantallaGameOver(SpaceNavigation game) {
 		this.game = game;
-        
+		//Carga imagen para el background segun nombre de archivo
+		initBackground("GameOver.png");
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1200, 800);
-		// Carga el archivo PNG para el fondo
-		batch = new SpriteBatch();
-        background = new Texture(Gdx.files.internal("GameOver.png"));
 	}
 
 	@Override
 	public void render(float delta) {
 		ScreenUtils.clear(0, 0, 0.2f, 1);
 		// Dibuja la imagen del fondo
-        batch.begin();
-        // Dibuja la imagen de fondo en la posición (0, 0)
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.end();
+        showBackground();
 		camera.update();
 		game.getBatch().setProjectionMatrix(camera.combined);
 

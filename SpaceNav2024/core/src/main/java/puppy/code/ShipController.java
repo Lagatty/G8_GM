@@ -3,6 +3,7 @@ package puppy.code;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.utils.TimeUtils;
 
 
 public class ShipController implements InputProcessor {
@@ -13,11 +14,17 @@ public class ShipController implements InputProcessor {
 	 private float Yspeed = 0;
 	 private float MaxYSpeed = 2;  // Maxima velocidad en y
 	 //Referencia a la nave que se controla
+	 
+	 private float pressStartTime = 0; // Tiempo en que se presionó el botón izquierdo
+	 private float pressDuration = 0;  // Duración de la presión
+	 private final float missileHoldTime = 0.75f * 1000000000; // Tiempo mínimo para lanzar un misil 
+	 
 	 private Nave4 NaveRef;
 	public ShipController(Nave4 NaveRef) {
 		//Guardar referencia de la nave
 		this.setNaveRef(NaveRef);
 	}
+	
 
 	@Override
 	public boolean keyDown(int keycode) {
@@ -50,19 +57,48 @@ public class ShipController implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		//  X = 0
+		//  X 
 		if (keycode == Input.Keys.D) {
-			setXspeed(0);
+			// Verificar si la tecla A no está siendo presionada
+	        if (!(Gdx.input.isKeyPressed(Input.Keys.A))) {
+	        	setXspeed(0);
+	        }
+	        else {
+	        	this.setXspeed(-MaxXSpeed);
+	        }
+	        return true;
         }
 		if (keycode == Input.Keys.A) {
-			setXspeed(0);
+			// Verificar si la tecla D no está siendo presionada
+	        if (!(Gdx.input.isKeyPressed(Input.Keys.D))) {
+	        	setXspeed(0);
+	        }
+	        else {
+	        	this.setXspeed(MaxXSpeed);
+	        }
+	        return true;
         }
-		// Y = 0
+		
+		// Y 
 		if (keycode == Input.Keys.W) {
-			setYspeed(0);
+			// Verificar si la tecla s no está siendo presionada
+	        if (!(Gdx.input.isKeyPressed(Input.Keys.S))) {
+	        	setYspeed(0);
+	        }
+	        else {
+	        	this.setYspeed(-MaxYSpeed);
+	        }
+	        return true;
         }
 		if (keycode == Input.Keys.S) {
-			setYspeed(0);
+			// Verificar si la tecla w no está siendo presionada
+	        if (!(Gdx.input.isKeyPressed(Input.Keys.W))) {
+	        	setYspeed(0);
+	        }
+	        else {
+	        	this.setYspeed(MaxYSpeed);
+	        }
+	        return true;
         }
 		
 		return true;
@@ -76,16 +112,26 @@ public class ShipController implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		//Disparo
-				if (button  == Input.Buttons.LEFT)
-					NaveRef.spawnBala();
-		return false;
+		
+		if (button  == Input.Buttons.LEFT) {
+			pressStartTime = TimeUtils.nanoTime(); // Guardar el tiempo actual en nanosegundos
+		}
+					
+		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+		
+		if (button == Input.Buttons.LEFT) {
+			float pressDuration = TimeUtils.nanoTime() - pressStartTime; // Calcular la duración en nanosegundos
+            if (pressDuration >= missileHoldTime) {
+            	NaveRef.spawnRocket();
+            } else {
+            	NaveRef.spawnBala();
+            }
+            pressStartTime = 0; // Reiniciar el tiempo de inicio
+        }
 		return false;
 	}
 

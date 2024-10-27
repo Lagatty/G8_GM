@@ -27,10 +27,11 @@ public class Nave4 {
     ShipController inputHandler;
     private PantallaJuego juego;
     
-    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, PantallaJuego juego) {
+    public Nave4(int x, int y, Texture tx, Sound soundChoque, Sound soundBala, PantallaJuego juego) {
     	sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
-    	this.txBala = txBala;
+    	//cargar imagen del proyectil
+    	this.txBala = new Texture(Gdx.files.internal("Rocket1.png"));
     	spr = new Sprite(tx);
     	spr.setPosition(x, y);
     	//spr.setOriginCenter();
@@ -66,12 +67,21 @@ public class Nave4 {
     
     //Spawn bala
     public void spawnBala() {
-    	Bullet  bala = new Bullet(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,(int)inputHandler.getXspeed(),3,txBala);
-    	getJuego().agregarBala(bala);
+    	
+    	Projectile  bala = new Bullet(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,(int)inputHandler.getXspeed(),(int)inputHandler.getYspeed()*3);
+    	getJuego().agregarProyectil(bala);
     	//Reproducir sonido de la bala a un determinado volumen 
 	      soundBala.setVolume(soundBala.play(), 0.45f);
     }
     
+    //spawn rocket
+    
+    public void spawnRocket() {
+    	Projectile  rocket = new Rocket(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,(int)inputHandler.getXspeed(),(int)inputHandler.getYspeed()*3);
+    	getJuego().agregarProyectil(rocket);
+    	//Reproducir sonido de la bala a un determinado volumen 
+	    soundBala.setVolume(soundBala.play(), 0.55f);
+    }
     
     public boolean checkCollision(Ball2 b) {
         if(!herido && b.getArea().overlaps(spr.getBoundingRectangle())){

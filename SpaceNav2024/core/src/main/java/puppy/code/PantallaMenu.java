@@ -10,31 +10,24 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 
-public class PantallaMenu implements Screen {
+public class PantallaMenu extends Pantalla implements Screen {
 
 	private SpaceNavigation game;
 	private OrthographicCamera camera;
-	private SpriteBatch batch;
-    private Texture background;
 	public PantallaMenu(SpaceNavigation game) {
 		this.game = game;
         
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1200, 800);
 		// Carga el archivo PNG para el fondo
-		batch = new SpriteBatch();
-        background = new Texture(Gdx.files.internal("MainMenu.png"));
-		
+		initBackground("MainMenu.png");		
 	}
 
 	@Override
 	public void render(float delta) {
 		ScreenUtils.clear(0, 0, 0f, 1);
 		 // Dibuja la imagen del fondo
-        batch.begin();
-        // Dibuja la imagen de fondo en la posición (0, 0)
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.end();
+        showBackground();
 		
 		camera.update();
 		game.getBatch().setProjectionMatrix(camera.combined);
@@ -46,7 +39,7 @@ public class PantallaMenu implements Screen {
 		game.getBatch().end();
 
 		if (Gdx.input.isTouched() || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
-			Screen ss = new PantallaJuego(game,1,3,0,1,1,10);
+			Screen ss = new PantallaJuego(game,1,3,0,1,1,5);
 			ss.resize(1200, 800);
 			game.setScreen(ss);
 			dispose();

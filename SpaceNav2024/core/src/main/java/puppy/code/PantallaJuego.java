@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
-public class PantallaJuego implements Screen {
+public class PantallaJuego extends Pantalla implements Screen {
 
 	private SpaceNavigation game;
 	private OrthographicCamera camera;	
@@ -22,29 +22,27 @@ public class PantallaJuego implements Screen {
 	private Music gameMusic;
 	private int score;
 	private int ronda;
-	private int velXAsteroides; 
-	private int velYAsteroides; 
+	private float velXAsteroides; 
+	private float velYAsteroides; 
 	private int cantAsteroides;
 	
 	private Nave4 nave;
 	private  ArrayList<Ball2> balls1 = new ArrayList<>();
 	private  ArrayList<Ball2> balls2 = new ArrayList<>();
-	private  ArrayList<Bullet> balas = new ArrayList<>();
+	private  ArrayList<Projectile> proyectiles = new ArrayList<>();
 	
-	//Background
-    private Texture background;
-    private SpriteBatch batchBackground;
 	public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,  
-			int velXAsteroides, int velYAsteroides, int cantAsteroides) {
+			float velXAsteroides, float velYAsteroides, int cantAsteroides) {
+		initBackground("fondo.png");
+		//nombre de imagen para el fondo
+		//setImageName("fondo.png");
+		
 		this.game = game;
 		this.ronda = ronda;
 		this.score = score;
 		this.velXAsteroides = velXAsteroides;
 		this.velYAsteroides = velYAsteroides;
 		this.cantAsteroides = cantAsteroides;
-		
-		
-		
 		batch = game.getBatch();
 		camera = new OrthographicCamera();	
 		camera.setToOrtho(false, 800, 640);
@@ -54,13 +52,12 @@ public class PantallaJuego implements Screen {
 		gameMusic.setLooping(true);
 		gameMusic.setVolume(0.5f);
 		gameMusic.play();
-		//Background
-		batchBackground = new SpriteBatch();
-		background = new Texture(Gdx.files.internal("fondo.png"));
+		
+		
+		
 	    // cargar imagen de la nave, 64x64   
 	    nave = new Nave4(Gdx.graphics.getWidth()/2-50,30,new Texture(Gdx.files.internal("MainShip1.png")),
 	    				Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")), 
-	    				new Texture(Gdx.files.internal("Rocket1.png")), 
 	    				Gdx.audio.newSound(Gdx.files.internal("launch_rocket.mp3")), this); 
         nave.setVidas(vidas);
         //crear asteroides
@@ -85,17 +82,14 @@ public class PantallaJuego implements Screen {
 	@Override
 	public void render(float delta) {
 		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-          batch.begin();
-          //Dibuja Background
-          batchBackground.begin();
-          batchBackground.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Dibuja la textura en toda la pantalla
-          batchBackground.end();
-          
+		  showBackground();
+          batch.begin();          
 		  dibujaEncabezado();
 	      if (!nave.estaHerido()) {
+	    	  
 		      // colisiones entre balas y asteroides y su destruccion  
-	    	  for (int i = 0; i < balas.size(); i++) {
-		            Bullet b = balas.get(i);
+	    	  for (int i = 0; i < proyectiles.size(); i++) {
+		            Projectile b = proyectiles.get(i);
 		            b.update();
 		            for (int j = 0; j < balls1.size(); j++) {    
 		              if (b.checkCollision(balls1.get(j))) {
@@ -110,7 +104,7 @@ public class PantallaJuego implements Screen {
 		                
 		         //   b.draw(batch);
 		            if (b.isDestroyed()) {
-		                balas.remove(b);
+		            	proyectiles.remove(b);
 		                i--; //para no saltarse 1 tras eliminar del arraylist
 		            }
 		      }
@@ -131,7 +125,7 @@ public class PantallaJuego implements Screen {
 		      } 
 	      }
 	      //dibujar balas
-	     for (Bullet b : balas) {       
+	     for (Projectile b : proyectiles) {       
 	          b.draw(batch);
 	      }
 	      nave.draw(batch, this);
@@ -160,7 +154,7 @@ public class PantallaJuego implements Screen {
 	      //nivel completado
 	      if (balls1.size()==0) {
 			Screen ss = new PantallaJuego(game,ronda+1, nave.getVidas(), score, 
-					velXAsteroides+3, velYAsteroides+3, cantAsteroides+10);
+					velXAsteroides+0.25f, velYAsteroides+0.25f, cantAsteroides+1);
 			ss.resize(1200, 800);
 			game.setScreen(ss);
 			dispose();
@@ -168,16 +162,17 @@ public class PantallaJuego implements Screen {
 	    	 
 	}
     
-    public boolean agregarBala(Bullet bb) {
-    	return balas.add(bb);
+    public boolean agregarProyectil(Projectile bb) {
+    	return proyectiles.add(bb);
     }
 	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
+		super.show();
 		gameMusic.play();
 	}
-
+	
 	@Override
 	public void resize(int width, int height) {
 		// TODO Auto-generated method stub
